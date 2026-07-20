@@ -1,0 +1,14 @@
+# the database is rebuilt by sql_queries.py, no point versioning it
+*.db
+
+__pycache__/
+*.py[cod]
+
+.venv/
+venv/
+env/
+
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
