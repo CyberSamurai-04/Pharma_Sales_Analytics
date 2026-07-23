@@ -62,9 +62,62 @@ FROM monthly
 ORDER BY month
 """
 
+YOY_GROWTH = """
+WITH yearly AS (
+    SELECT
+        s.atc_code,
+        d.drug_name,
+        s.year,
+        SUM(s.units) AS units
+    FROM sales_long s
+    JOIN dim_drug d ON d.atc_code = s.atc_code
+    GROUP BY s.atc_code, d.drug_name, s.year
+),
+compared AS (
+    SELECT
+        drug_name,
+        year,
+        units,
+        LAG(units) OVER (PARTITION BY atc_code ORDER BY year) AS prev_units
+    FROM yearly
+)
+SELECT
+    drug_name,
+    year,
+    ROUND(units, 1)                                     AS year_units,
+    ROUND(prev_units, 1)                                AS prev_year_units,
+    ROUND(100.0 * (units - prev_units) / prev_units, 1) AS yoy_pct
+FROM compared
+WHERE prev_units IS NOT NULL
+ORDER BY drug_name, year
+"""
+
+MOVING_AVERAGE = """
+WITH monthly AS (
+    SELECT
+        strftime('%Y-%m', date) AS month,
+        SUM(units)              AS units
+    FROM sales_long
+    GROUP BY strftime('%Y-%m', date)
+)
+SELECT
+    month,
+    ROUND(units, 1) AS units,
+    ROUND(AVG(units) OVER (
+        ORDER BY month ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+    ), 1) AS moving_avg_3m,
+    ROUND(units - AVG(units) OVER (
+        ORDER BY month ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+    ), 1) AS vs_trend
+FROM monthly
+ORDER BY month
+"""
+
 QUERIES = {
     "top_categories": TOP_CATEGORIES,
     "monthly_trend": MONTHLY_TREND,
+    "yoy_growth": YOY_GROWTH,
+    "moving_average": MOVING_AVERAGE,
 }
 
 
@@ -122,6 +175,17 @@ def main():
             conn,
             MONTHLY_TREND,
             "2. Monthly sales trend with month-over-month change",
+            tail=12,
+        )
+        run_query(
+            conn,
+            YOY_GROWTH,
+            "3. Year-over-year growth by category",
+        )
+        run_query(
+            conn,
+            MOVING_AVERAGE,
+            "4. Monthly sales against a 3-month moving average",
             tail=12,
         )
 
