@@ -2,8 +2,12 @@
 Builds the SQLite database from data/cleaned/ and runs the analysis queries.
 
 Everything analytical lives in SQL here rather than pandas -- the point of this
-stage is the query layer, so grouping, ranking and the window functions are all
-done by the database. Pandas only reads the results back for display.
+stage is the query layer, so grouping, ranking, LAG() and the moving average
+window are all done by the database. Pandas only reads the results back for
+display.
+
+visualize.py imports QUERIES from this module so the charts run off exactly the
+same SQL that gets printed here.
 
 Run:  python sql_queries.py
 """
@@ -62,8 +66,11 @@ FROM monthly
 ORDER BY month
 """
 
+# 2019 stops on 8 October, so a straight full-year comparison would show every
+# category "collapsing" by roughly a quarter. Restricting every year to Jan-Oct
+# keeps the comparison like-for-like.
 YOY_GROWTH = """
-WITH yearly AS (
+WITH ytd AS (
     SELECT
         s.atc_code,
         d.drug_name,
@@ -71,6 +78,7 @@ WITH yearly AS (
         SUM(s.units) AS units
     FROM sales_long s
     JOIN dim_drug d ON d.atc_code = s.atc_code
+    WHERE s.month <= 10
     GROUP BY s.atc_code, d.drug_name, s.year
 ),
 compared AS (
@@ -79,13 +87,13 @@ compared AS (
         year,
         units,
         LAG(units) OVER (PARTITION BY atc_code ORDER BY year) AS prev_units
-    FROM yearly
+    FROM ytd
 )
 SELECT
     drug_name,
     year,
-    ROUND(units, 1)                                     AS year_units,
-    ROUND(prev_units, 1)                                AS prev_year_units,
+    ROUND(units, 1)                                     AS ytd_units,
+    ROUND(prev_units, 1)                                AS prev_ytd_units,
     ROUND(100.0 * (units - prev_units) / prev_units, 1) AS yoy_pct
 FROM compared
 WHERE prev_units IS NOT NULL
@@ -180,7 +188,7 @@ def main():
         run_query(
             conn,
             YOY_GROWTH,
-            "3. Year-over-year growth by category",
+            "3. Year-over-year growth by category (Jan-Oct like-for-like)",
         )
         run_query(
             conn,
