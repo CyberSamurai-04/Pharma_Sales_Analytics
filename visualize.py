@@ -1,5 +1,5 @@
 """
-Builds the portfolio charts from the SQLite database.
+Builds the three portfolio charts from the SQLite database.
 
 Reads through the same queries that sql_queries.py prints, so the charts and the
 terminal output can't drift apart. Charts go to visualizations/ as PNGs.
@@ -15,6 +15,7 @@ matplotlib.use("Agg")  # writing files, no interactive window needed
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.ticker import FuncFormatter
 
 from sql_queries import QUERIES, connect
@@ -31,12 +32,18 @@ GRID = "#e1e0d9"
 AXIS = "#c3c2b7"
 BLUE = "#2a78d6"
 ORANGE = "#eb6834"
+RED = "#e34948"
+NEUTRAL = "#f0efec"
+
+# Growth is a signed number, so it gets a diverging scale: red for decline,
+# grey for flat, blue for growth.
+GROWTH_CMAP = LinearSegmentedColormap.from_list("growth", [RED, NEUTRAL, BLUE])
 
 thousands = FuncFormatter(lambda x, _: f"{x:,.0f}")
 
 
 def set_style():
-    """One look for every chart."""
+    """One look for all three charts."""
     sns.set_theme(style="white")
     plt.rcParams.update({
         "figure.facecolor": SURFACE,
@@ -159,6 +166,51 @@ def chart_monthly_trend(conn):
     save(fig, "02_monthly_sales_trend.png")
 
 
+# --------------------------------------------------------------------------- #
+# Chart 3 -- growth, by category and year
+# --------------------------------------------------------------------------- #
+
+def chart_yoy_growth(conn):
+    df = pd.read_sql_query(QUERIES["yoy_growth"], conn)
+    grid = df.pivot(index="drug_name", columns="year", values="yoy_pct")
+
+    # Strongest 2019 performers at the top.
+    grid = grid.sort_values(grid.columns[-1], ascending=False)
+
+    limit = 55  # symmetric scale, otherwise the midpoint stops meaning "flat"
+
+    fig, ax = plt.subplots(figsize=(9.5, 6))
+    sns.heatmap(
+        grid,
+        ax=ax,
+        cmap=GROWTH_CMAP,
+        vmin=-limit, vmax=limit, center=0,
+        annot=True, fmt=".1f",
+        annot_kws={"fontsize": 9.5},
+        linewidths=2, linecolor=SURFACE,
+        cbar_kws={"label": "Year-over-year change (%)", "shrink": 0.7, "pad": 0.02},
+    )
+
+    cbar = ax.collections[0].colorbar
+    cbar.outline.set_visible(False)
+    cbar.ax.tick_params(length=0, labelsize=9, colors=INK_MUTED)
+    cbar.set_label("Year-over-year change (%)", color=INK_SOFT, fontsize=9)
+
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    ax.tick_params(axis="both", length=0)
+    plt.setp(ax.get_yticklabels(), rotation=0, color=INK_SOFT)
+    plt.setp(ax.get_xticklabels(), color=INK_SOFT)
+
+    title_block(
+        ax,
+        "2017 was a down year across nearly every category",
+        "Year-over-year change in units sold, measured January to October each year",
+    )
+    footnote(fig, "Every year is cut to Jan-Oct so 2019 (data ends 8 Oct) compares like for like.")
+    save(fig, "03_yoy_growth.png")
+
+
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     set_style()
@@ -168,6 +220,7 @@ def main():
         print(f"Writing charts to {OUT_DIR}/")
         chart_top_categories(conn)
         chart_monthly_trend(conn)
+        chart_yoy_growth(conn)
         print("Done.")
     finally:
         conn.close()
