@@ -174,8 +174,10 @@ def chart_yoy_growth(conn):
     df = pd.read_sql_query(QUERIES["yoy_growth"], conn)
     grid = df.pivot(index="drug_name", columns="year", values="yoy_pct")
 
-    # Strongest 2019 performers at the top.
-    grid = grid.sort_values(grid.columns[-1], ascending=False)
+    # Order by total volume, same as chart 1. Sorting by growth instead would put
+    # Hypnotics on top, and its big swings are just a small base moving around.
+    volume = pd.read_sql_query(QUERIES["top_categories"], conn)
+    grid = grid.reindex(volume["drug_name"])
 
     limit = 55  # symmetric scale, otherwise the midpoint stops meaning "flat"
 
