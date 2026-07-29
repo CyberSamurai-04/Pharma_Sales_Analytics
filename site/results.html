@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Results — Pharma Sales Analytics</title>
+<meta name="description" content="Three charts from six years of pharmacy sales data, the business findings behind them, and what's next." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232a78d6'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='700' font-size='17' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<header class="site-head">
+  <div class="head-inner">
+    <a class="wordmark" href="index.html">Pharma<span>Sales</span>.Analytics</a>
+    <nav class="head-nav">
+      <a href="index.html">Home</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="results.html" aria-current="page">Results</a>
+      <a class="btn btn-ghost" href="https://github.com/CyberSamurai-04/Pharma_Sales_Analytics" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="eyebrow">Results</p>
+      <h1>What six years of sales actually show</h1>
+      <p>Three charts, generated straight from <code>visualize.py</code> against the same database the Methodology page queries directly. Each one below is paired with what it means for the business, not just what it shows.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+
+      <div class="result">
+        <div class="result-grid">
+          <div class="result-figure">
+            <img src="assets/img/01_top_drug_categories.png" alt="Horizontal bar chart ranking eight drug categories by total units sold, Pyrazolones and Anilides far in the lead" loading="lazy" />
+          </div>
+          <div class="result-copy">
+            <div class="result-index">01 / Concentration</div>
+            <h3 class="result-title">Half the business is one drug category</h3>
+            <p class="result-text">
+              <strong>Pyrazolones and Anilides are 49.4% of all volume</strong> — nearly
+              3.4× the next category. Six of eight categories sit under 10% each.
+              Inventory and supplier leverage should be concentrated accordingly, and
+              the same number is a single-point supply risk worth flagging.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="result">
+        <div class="result-grid reverse">
+          <div class="result-figure">
+            <img src="assets/img/02_monthly_sales_trend.png" alt="Line chart of monthly units sold from 2014 to 2019 with a 3-month moving average overlaid, showing a repeating winter peak and summer trough" loading="lazy" />
+          </div>
+          <div class="result-copy">
+            <div class="result-index">02 / Seasonality</div>
+            <h3 class="result-title">Demand runs on a hard winter cycle</h3>
+            <p class="result-text">
+              Averaged across all six years, <strong>January runs about 59% above July</strong>
+              (2,328 vs 1,460 units). The cycle is reliable enough to plan a staffing and
+              stock calendar around rather than ordering to a flat annual average.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="result">
+        <div class="result-grid">
+          <div class="result-figure">
+            <img src="assets/img/03_yoy_growth.png" alt="Heatmap of year-over-year percentage change in units sold, by drug category and year, colored diverging red to blue" loading="lazy" />
+          </div>
+          <div class="result-copy">
+            <div class="result-index">03 / Trajectory</div>
+            <h3 class="result-title">2017 was bad everywhere — one category never came back</h3>
+            <p class="result-text">
+              <strong>2017 is negative for all eight categories</strong> — Pyrazolones fell
+              30.7%, Salicylic acid derivatives 23.6% — a downturn too broad to be eight
+              separate product problems. Salicylic acid derivatives is the one category
+              that never recovered: negative in four of its five comparison years, and
+              the only one that sat out the 2018 rebound entirely.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="alt" id="findings">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label">So what</p>
+        <h2 class="section-title">Turning the charts into decisions</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Finding</th><th>Business risk</th><th>Suggested action</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>49.4% of volume in one category (Pyrazolones and Anilides)</td>
+              <td>A single supply disruption could hit roughly half of unit throughput</td>
+              <td>Multi-supplier terms and a contingency stock buffer for this ATC class</td>
+            </tr>
+            <tr>
+              <td>January runs ~59% above July, every year</td>
+              <td>Flat ordering means January stockouts and July dead capital</td>
+              <td>Move to a seasonal reorder calendar, front-load stock by November</td>
+            </tr>
+            <tr>
+              <td>Salicylic acid derivatives down 4 of the last 5 years</td>
+              <td>Capital tied up in a structurally shrinking line</td>
+              <td>Review for delisting, reformulation, or repositioning</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="roadmap">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label">What's next</p>
+        <h2 class="section-title">Where this goes from here</h2>
+        <p class="section-sub">The pipeline is complete for what it set out to do. These are the honest next steps if this went further.</p>
+      </div>
+      <div class="roadmap">
+        <div class="roadmap-item">
+          <span class="roadmap-tag">Planned</span>
+          <div>
+            <div class="roadmap-title">A Power BI dashboard</div>
+            <div class="roadmap-detail"><code>sales_long</code> + <code>dim_drug</code> is already shaped as a star schema, so it drops into Power BI without rework — a category slicer, a date-range slicer, and a YoY matrix visual would cover most of what's static here today.</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <span class="roadmap-tag">Planned</span>
+          <div>
+            <div class="roadmap-title">A short forecast</div>
+            <div class="roadmap-detail">The moving average smooths the past; a Prophet or ARIMA model on the monthly series would project the next two quarters, which matters more for the seasonal ordering decision above.</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <span class="roadmap-tag">Planned</span>
+          <div>
+            <div class="roadmap-title">A narrated notebook</div>
+            <div class="roadmap-detail">The scripts are production-shaped; a Jupyter notebook walking through the exploratory steps and dead ends would show the reasoning, not just the finished pipeline.</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <span class="roadmap-tag">Planned</span>
+          <div>
+            <div class="roadmap-title">Automated data checks</div>
+            <div class="roadmap-detail">A small pytest suite asserting row counts, schema, and null rates, so a future data refresh can't silently break the pipeline the way a manual re-run could.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <div>
+      <div class="foot-name">Subham Kumar Sahoo</div>
+      <div class="foot-sub">Data pipeline built with pandas, SQLite and Matplotlib/Seaborn</div>
+    </div>
+    <div class="foot-links">
+      <a href="https://github.com/CyberSamurai-04/Pharma_Sales_Analytics" target="_blank" rel="noopener">Repository</a>
+      <a href="https://github.com/CyberSamurai-04" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>
