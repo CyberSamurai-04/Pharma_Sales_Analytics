@@ -242,12 +242,74 @@ section.alt .step-num { background: #fff; }
 }
 
 /* ------------------------------------------------------------------ */
+/* SQL panels                                                          */
+/* ------------------------------------------------------------------ */
+.sql-list { display: flex; flex-direction: column; gap: 36px; }
+.sql-item { display: grid; grid-template-columns: 1.25fr 1fr; gap: 28px; align-items: start; }
+.sql-title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.sql-title { font-weight: 700; font-size: 16px; }
+.sql-tag {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.03em;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+.sql-codewrap {
+  background: var(--ink);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+pre.sql-code {
+  margin: 0;
+  padding: 20px 22px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre;
+  color: #d8dade;
+}
+.sql-note { font-size: 15px; color: var(--ink-soft); line-height: 1.65; padding-top: 2px; }
+.sql-note strong { color: var(--ink); }
+.sql-note code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: var(--bg-alt);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+@media (max-width: 860px) {
+  .sql-item { grid-template-columns: 1fr; }
+}
+
+/* sql token colors */
+.tok-kw { color: #7db3f0; font-weight: 600; }
+.tok-fn { color: #f0a25e; font-weight: 600; }
+.tok-num { color: #b7bac1; }
+.tok-cm { color: #8a8d91; font-style: italic; }
+
+/* ------------------------------------------------------------------ */
 /* Nav current-page state                                             */
 /* ------------------------------------------------------------------ */
 .head-nav a[aria-current="page"] {
   color: var(--ink);
   font-weight: 600;
 }
+
+/* ------------------------------------------------------------------ */
+/* Page hero (inner pages)                                            */
+/* ------------------------------------------------------------------ */
+.page-hero { padding: 60px 0 48px; border-bottom: 1px solid var(--line); }
+.page-hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0 0 14px;
+  max-width: 20ch;
+}
+.page-hero p { font-size: 17px; color: var(--ink-soft); max-width: 60ch; margin: 0; }
 
 /* ------------------------------------------------------------------ */
 /* Explore cards (home)                                                */
@@ -282,6 +344,158 @@ section.alt .step-num { background: #fff; }
 @media (max-width: 860px) {
   .explore-grid { grid-template-columns: 1fr; }
 }
+
+/* ------------------------------------------------------------------ */
+/* Data tables                                                         */
+/* ------------------------------------------------------------------ */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+table.data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.data-table th, table.data-table td {
+  padding: 11px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+table.data-table td.num, table.data-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.data-table tbody tr:last-child td { border-bottom: none; }
+table.data-table tbody tr:hover { background: var(--bg-alt); }
+table.data-table thead th {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  font-weight: 500;
+  background: var(--bg-alt);
+}
+table.data-table.sortable thead th {
+  cursor: pointer;
+  user-select: none;
+}
+table.data-table.sortable thead th:hover { color: var(--ink); }
+table.data-table.sortable thead th::after {
+  content: "";
+  display: inline-block;
+  width: 0; height: 0;
+  margin-left: 6px;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--ink-muted);
+  vertical-align: middle;
+  opacity: 0.35;
+}
+table.data-table.sortable thead th[data-dir="asc"]::after {
+  border-top: none; border-bottom: 5px solid var(--accent);
+  opacity: 1;
+}
+table.data-table.sortable thead th[data-dir="desc"]::after {
+  border-top: 5px solid var(--accent);
+  opacity: 1;
+}
+.table-caption { font-size: 13px; color: var(--ink-muted); margin: 10px 0 0; }
+
+/* ------------------------------------------------------------------ */
+/* Tabs                                                                */
+/* ------------------------------------------------------------------ */
+.tab-list { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 28px; flex-wrap: wrap; }
+.tab-btn {
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 4px;
+  margin-right: 22px;
+  cursor: pointer;
+}
+.tab-btn:hover { color: var(--ink); }
+.tab-btn.active { color: var(--ink); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ------------------------------------------------------------------ */
+/* Code panel with header + copy                                      */
+/* ------------------------------------------------------------------ */
+.code-panel { background: var(--ink); border-radius: 8px; overflow: hidden; }
+.code-panel-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.code-panel-name {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #9ba0a8;
+  letter-spacing: 0.02em;
+}
+.copy-btn {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: #9ba0a8;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 5px;
+  padding: 4px 9px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.copy-btn:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
+.copy-btn.copied { color: #7fd68a; border-color: #7fd68a; }
+.code-panel .sql-codewrap { border-radius: 0; }
+
+/* ------------------------------------------------------------------ */
+/* Details / expander                                                  */
+/* ------------------------------------------------------------------ */
+details.code-expander { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+details.code-expander summary {
+  padding: 14px 18px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14.5px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-alt);
+}
+details.code-expander summary::-webkit-details-marker { display: none; }
+details.code-expander summary::after {
+  content: "Show code";
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent);
+}
+details.code-expander[open] summary::after { content: "Hide code"; }
+details.code-expander .code-panel { border-radius: 0; }
+
+/* ------------------------------------------------------------------ */
+/* Checklist                                                           */
+/* ------------------------------------------------------------------ */
+.checklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.checklist li {
+  display: flex; align-items: baseline; gap: 10px;
+  font-size: 15px; color: var(--ink-soft);
+}
+.checklist li::before {
+  content: "✓";
+  color: var(--good);
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+.checklist li strong { color: var(--ink); }
+
+/* ------------------------------------------------------------------ */
+/* Weekday bars (bonus finding)                                        */
+/* ------------------------------------------------------------------ */
+.barlist { display: flex; flex-direction: column; gap: 10px; }
+.barlist-row { display: grid; grid-template-columns: 90px 1fr 70px; align-items: center; gap: 14px; }
+.barlist-label { font-size: 13.5px; color: var(--ink-soft); }
+.barlist-track { height: 10px; background: var(--bg-alt); border-radius: 5px; overflow: hidden; }
+.barlist-fill { height: 100%; background: var(--accent); border-radius: 5px; }
+.barlist-value { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-muted); text-align: right; font-variant-numeric: tabular-nums; }
 
 /* ------------------------------------------------------------------ */
 /* Footer                                                              */

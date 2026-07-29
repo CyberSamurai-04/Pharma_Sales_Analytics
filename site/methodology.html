@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Methodology — Pharma Sales Analytics</title>
+<meta name="description" content="How the raw pharmacy sales data was cleaned in pandas and modeled in SQL, with the full code and real query output." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232a78d6'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='700' font-size='17' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<header class="site-head">
+  <div class="head-inner">
+    <a class="wordmark" href="index.html">Pharma<span>Sales</span>.Analytics</a>
+    <nav class="head-nav">
+      <a href="index.html">Home</a>
+      <a href="methodology.html" aria-current="page">Methodology</a>
+      <a href="results.html">Results</a>
+      <a class="btn btn-ghost" href="https://github.com/CyberSamurai-04/Pharma_Sales_Analytics" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="eyebrow">Methodology</p>
+      <h1>From raw exports to a queryable database</h1>
+      <p>Every number on the results page traces back to a step here. This page shows the actual problems in the raw files, the cleaning code that fixed them, the database schema, and all four queries with their real output.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label">01 — Raw data</p>
+        <h2 class="section-title">Four files, three date formats</h2>
+        <p class="section-sub">The Kaggle export aggregates the same eight drug categories at four different grains. They don't agree on how a date is written, which is the first thing that breaks a naive <code>pd.read_csv</code>.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>File</th><th>Rows</th><th>Date format</th><th>Note</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>salesdaily.csv</td><td class="num">2,106</td><td>M/D/YYYY</td><td>Carries a junk <code>Hour</code> column — dropped</td></tr>
+            <tr><td>saleshourly.csv</td><td class="num">50,532</td><td>M/D/YYYY H:MM</td><td><code>Hour</code> is genuine here — kept</td></tr>
+            <tr><td>salesweekly.csv</td><td class="num">302</td><td>M/D/YYYY</td><td>Week-ending dates</td></tr>
+            <tr><td>salesmonthly.csv</td><td class="num">70</td><td>YYYY-MM-DD</td><td>Month-end dates</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-caption">Each format is parsed with an explicit <code>strftime</code> string, not inferred — a silently misparsed <code>1/12/2014</code> (12 January vs 1 December) is the kind of bug that survives all the way to a chart.</p>
+    </div>
+  </section>
+
+  <section class="alt">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label">02 — Cleaning in Python</p>
+        <h2 class="section-title">What actually needed fixing</h2>
+        <p class="section-sub">Missing values and duplicates were checked, not assumed — the checks came back at zero, which is reported honestly rather than implying a repair that didn't happen.</p>
+      </div>
+
+      <ul class="checklist" style="margin-bottom: 32px;">
+        <li>Checked all <strong>8 drug columns</strong> across 4 files for nulls — found none, filled with <strong>0</strong> as the policy for any future run (a gap means nothing was dispensed, not an unknown value)</li>
+        <li>Checked for exact duplicate rows and duplicate dates — found none in any file</li>
+        <li>Dropped the <strong>Hour</strong> column from <code>salesdaily.csv</code> — its values (248, 276…) are a leftover sum from however the export was generated, not a time of day</li>
+        <li>Re-derived <strong>year / month / quarter</strong> from the parsed date instead of trusting the raw file's own Year/Month columns, so there's one canonical source</li>
+        <li>Melted the daily table into a <strong>long-format fact table</strong> (date, atc_code, units) — wide columns make every "top category" question an eight-way UNION in SQL</li>
+      </ul>
+
+      <details class="code-expander">
+        <summary>clean_data.py — full source</summary>
+        <div class="code-panel">
+          <div class="code-panel-head">
+            <span class="code-panel-name">clean_data.py</span>
+            <button class="copy-btn" data-copy-target="py-clean">Copy</button>
+          </div>
+          <div class="sql-codewrap"><pre class="sql-code" id="py-clean">"""
+Cleans the raw Kaggle pharma sales CSVs and writes tidy versions to data/cleaned/.
+
+The four raw files are the same eight drug categories aggregated at different
+granularities (hourly / daily / weekly / monthly). Annoyingly they don't all use
+the same date format, so each one gets parsed explicitly.
+
+Run:  python clean_data.py
+"""
+
+import os
+import pandas as pd
+
+RAW_DIR = os.path.join("data", "raw", "archive")
+CLEAN_DIR = os.path.join("data", "cleaned")
+
+# The column headers in the raw files are ATC codes. Nobody reading a chart
+# knows what "N02BE" means, so keep a lookup and ship it as a dimension table.
+ATC_CODES = {
+    "M01AB": ("Acetic acid derivatives", "Anti-inflammatory / Antirheumatic"),
+    "M01AE": ("Propionic acid derivatives", "Anti-inflammatory / Antirheumatic"),
+    "N02BA": ("Salicylic acid derivatives", "Analgesics / Antipyretics"),
+    "N02BE": ("Pyrazolones and Anilides", "Analgesics / Antipyretics"),
+    "N05B": ("Anxiolytics", "Psycholeptics"),
+    "N05C": ("Hypnotics and sedatives", "Psycholeptics"),
+    "R03": ("Obstructive airway disease drugs", "Respiratory"),
+    "R06": ("Antihistamines for systemic use", "Respiratory"),
+}
+
+DRUG_COLS = list(ATC_CODES)
+
+# filename -&gt; (output name, date format)
+FILES = {
+    "salesdaily.csv": ("sales_daily", "%m/%d/%Y"),
+    "saleshourly.csv": ("sales_hourly", "%m/%d/%Y %H:%M"),
+    "salesweekly.csv": ("sales_weekly", "%m/%d/%Y"),
+    "salesmonthly.csv": ("sales_monthly", "%Y-%m-%d"),
+}
+
+
+def load_raw(filename, date_format):
+    """Read one raw CSV and get the date column into a real datetime."""
+    df = pd.read_csv(os.path.join(RAW_DIR, filename))
+    df = df.rename(columns={"datum": "date", "Weekday Name": "weekday"})
+    df["date"] = pd.to_datetime(df["date"], format=date_format)
+    return df
+
+
+def clean(df, name):
+    """Standard cleaning pass. Prints what it actually changed."""
+    before = len(df)
+
+    # salesdaily has an "Hour" column holding values like 248 and 276 -- it's a
+    # leftover sum from however the file was generated, not an hour of the day.
+    # The hourly file has a genuine one, so only drop it here.
+    if name == "sales_daily" and "Hour" in df.columns:
+        df = df.drop(columns=["Hour"])
+
+    # Year/Month are already in the raw files but we re-derive them from the
+    # parsed date below, so drop them rather than carry two sets of the same
+    # thing in different capitalisation.
+    df = df.drop(columns=[c for c in ("Year", "Month") if c in df.columns])
+
+    # A missing quantity here means nothing was dispensed, not that the value is
+    # unknown -- so zero is the honest fill, not a mean or a forward fill.
+    missing = int(df[DRUG_COLS].isna().sum().sum())
+    if missing:
+        df[DRUG_COLS] = df[DRUG_COLS].fillna(0)
+
+    df = df.drop_duplicates()
+    dupe_rows = before - len(df)
+
+    dupe_dates = int(df["date"].duplicated().sum())
+    if dupe_dates:
+        df = df.drop_duplicates(subset="date", keep="first")
+
+    df = df.sort_values("date").reset_index(drop=True)
+
+    print(f"  {name:&lt;14} rows {before} -&gt; {len(df)}  "
+          f"| nulls filled: {missing}  "
+          f"| dupe rows: {dupe_rows}  "
+          f"| dupe dates: {dupe_dates}")
+    return df
+
+
+def add_date_parts(df):
+    """Year / month / quarter columns so the SQL layer doesn't have to derive them."""
+    df["year"] = df["date"].dt.year
+    df["month"] = df["date"].dt.month
+    df["month_name"] = df["date"].dt.strftime("%b")
+    df["quarter"] = df["date"].dt.quarter
+    return df
+
+
+def to_long(daily):
+    """
+    Melt the wide daily table into date / atc_code / units.
+
+    Eight columns of drug codes is fine for a spreadsheet but painful to query --
+    every "top category" question turns into eight UNIONs. Long format fixes that.
+    """
+    long_df = daily.melt(
+        id_vars="date",
+        value_vars=DRUG_COLS,
+        var_name="atc_code",
+        value_name="units",
+    )
+    long_df["year"] = long_df["date"].dt.year
+    long_df["month"] = long_df["date"].dt.month
+    return long_df.sort_values(["date", "atc_code"]).reset_index(drop=True)
+
+
+def main():
+    os.makedirs(CLEAN_DIR, exist_ok=True)
+
+    print(f"Reading raw files from {RAW_DIR}\n")
+    cleaned = {}
+    for filename, (name, date_format) in FILES.items():
+        df = load_raw(filename, date_format)
+        cleaned[name] = clean(df, name)
+
+    for name in cleaned:
+        cleaned[name] = add_date_parts(cleaned[name])
+
+    cleaned["sales_long"] = to_long(cleaned["sales_daily"])
+
+    # Dimension table for joining readable names onto the ATC codes.
+    cleaned["drug_categories"] = pd.DataFrame(
+        [(code, name, group) for code, (name, group) in ATC_CODES.items()],
+        columns=["atc_code", "drug_name", "drug_group"],
+    )
+
+    print(f"\nWriting to {CLEAN_DIR}")
+    for name, df in cleaned.items():
+        path = os.path.join(CLEAN_DIR, f"{name}.csv")
+        df.to_csv(path, index=False)
+        print(f"  {name}.csv  ({len(df):,} rows, {len(df.columns)} cols)")
+
+    daily = cleaned["sales_daily"]
+    print(f"\nDate range: {daily['date'].min():%Y-%m-%d} to {daily['date'].max():%Y-%m-%d}")
+    print("Done.")
+
+
+if __name__ == "__main__":
+    main()</pre></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label">03 — Modeling in SQL</p>
+        <h2 class="section-title">The SQLite schema</h2>
+        <p class="section-sub">Six tables loaded straight from the cleaned CSVs. <code>sales_long</code> is the workhorse — a fact table joined to <code>dim_drug</code> on <code>atc_code</code>, indexed on both date and category.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Table</th><th>Rows</th><th>Key columns</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>sales_daily</td><td class="num">2,106</td><td>date, M01AB…R06, weekday, year, month, quarter</td></tr>
+            <tr><td>sales_hourly</td><td class="num">50,532</td><td>date, M01AB…R06, Hour, weekday</td></tr>
+            <tr><td>sales_weekly</td><td class="num">302</td><td>date, M01AB…R06</td></tr>
+            <tr><td>sales_monthly</td><td class="num">70</td><td>date, M01AB…R06</td></tr>
+            <tr><td><strong>sales_long</strong></td><td class="num">16,848</td><td>date, atc_code, units, year, month — indexed on date &amp; atc_code</td></tr>
+            <tr><td>dim_drug</td><td class="num">8</td><td>atc_code, drug_name, drug_group</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="alt" id="queries">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label">04 — The four queries</p>
+        <h2 class="section-title">Where the actual analysis happens</h2>
+        <p class="section-sub">Ranking, growth and the moving average are window functions running inside SQLite — pandas only prints the result back out. Click a column header on any table below to sort it.</p>
+      </div>
+
+      <div data-tabs>
+        <div class="tab-list" role="tablist">
+          <button class="tab-btn active" data-tab="top">Top categories</button>
+          <button class="tab-btn" data-tab="trend">Monthly trend</button>
+          <button class="tab-btn" data-tab="yoy">YoY growth</button>
+          <button class="tab-btn" data-tab="avg">Moving average</button>
+        </div>
+
+        <div class="tab-panel active" data-panel="top">
+          <div class="code-panel" style="margin-bottom: 22px;">
+            <div class="code-panel-head">
+              <span class="code-panel-name">RANK() · subquery</span>
+              <button class="copy-btn" data-copy-target="sql-top">Copy</button>
+            </div>
+            <div class="sql-codewrap"><pre class="sql-code" data-sql id="sql-top">SELECT
+    d.drug_name,
+    ROUND(SUM(s.units), 1) AS total_units,
+    ROUND(100.0 * SUM(s.units) /
+        (SELECT SUM(units) FROM sales_long), 2) AS pct_of_total,
+    RANK() OVER (ORDER BY SUM(s.units) DESC) AS sales_rank
+FROM sales_long s
+JOIN dim_drug d ON d.atc_code = s.atc_code
+GROUP BY d.atc_code, d.drug_name
+ORDER BY total_units DESC;</pre></div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table sortable">
+              <thead>
+                <tr>
+                  <th data-dir="desc">Drug category</th>
+                  <th>Group</th>
+                  <th class="num" data-dir="desc">Total units</th>
+                  <th class="num">% of total</th>
+                  <th class="num">Rank</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Pyrazolones and Anilides</td><td>Analgesics / Antipyretics</td><td class="num" data-value="63005.4">63,005.4</td><td class="num" data-value="49.38">49.38</td><td class="num" data-value="1">1</td></tr>
+                <tr><td>Anxiolytics</td><td>Psycholeptics</td><td class="num" data-value="18645.7">18,645.7</td><td class="num" data-value="14.61">14.61</td><td class="num" data-value="2">2</td></tr>
+                <tr><td>Obstructive airway disease drugs</td><td>Respiratory</td><td class="num" data-value="11608.8">11,608.8</td><td class="num" data-value="9.10">9.10</td><td class="num" data-value="3">3</td></tr>
+                <tr><td>Acetic acid derivatives</td><td>Anti-inflammatory / Antirheumatic</td><td class="num" data-value="10600.9">10,600.9</td><td class="num" data-value="8.31">8.31</td><td class="num" data-value="4">4</td></tr>
+                <tr><td>Propionic acid derivatives</td><td>Anti-inflammatory / Antirheumatic</td><td class="num" data-value="8204.6">8,204.6</td><td class="num" data-value="6.43">6.43</td><td class="num" data-value="5">5</td></tr>
+                <tr><td>Salicylic acid derivatives</td><td>Analgesics / Antipyretics</td><td class="num" data-value="8172.2">8,172.2</td><td class="num" data-value="6.40">6.40</td><td class="num" data-value="6">6</td></tr>
+                <tr><td>Antihistamines for systemic use</td><td>Respiratory</td><td class="num" data-value="6107.8">6,107.8</td><td class="num" data-value="4.79">4.79</td><td class="num" data-value="7">7</td></tr>
+                <tr><td>Hypnotics and sedatives</td><td>Psycholeptics</td><td class="num" data-value="1250.0">1,250.0</td><td class="num" data-value="0.98">0.98</td><td class="num" data-value="8">8</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-caption">Live output of the query above, against the actual database — not a screenshot.</p>
+        </div>
+
+        <div class="tab-panel" data-panel="trend">
+          <div class="code-panel" style="margin-bottom: 22px;">
+            <div class="code-panel-head">
+              <span class="code-panel-name">LAG() · CTE</span>
+              <button class="copy-btn" data-copy-target="sql-trend">Copy</button>
+            </div>
+            <div class="sql-codewrap"><pre class="sql-code" data-sql id="sql-trend">WITH monthly AS (
+    SELECT strftime('%Y-%m', date) AS month, SUM(units) AS units
+    FROM sales_long
+    GROUP BY strftime('%Y-%m', date)
+)
+SELECT month, ROUND(units, 1) AS units,
+    ROUND(LAG(units) OVER (ORDER BY month), 1) AS prev_month,
+    ROUND(units - LAG(units) OVER (ORDER BY month), 1) AS change,
+    ROUND(100.0 * (units - LAG(units) OVER (ORDER BY month))
+        / LAG(units) OVER (ORDER BY month), 1) AS pct_change
+FROM monthly
+ORDER BY month;</pre></div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table sortable">
+              <thead>
+                <tr><th data-dir="asc">Month</th><th class="num">Units</th><th class="num">Prev month</th><th class="num">Change</th><th class="num">% change</th></tr>
+              </thead>
+              <tbody>
+                <tr><td data-value="2019-05">2019-05</td><td class="num" data-value="1798.5">1,798.5</td><td class="num" data-value="1716.8">1,716.8</td><td class="num" data-value="81.6">+81.6</td><td class="num" data-value="4.8">+4.8</td></tr>
+                <tr><td data-value="2019-06">2019-06</td><td class="num" data-value="1482.4">1,482.4</td><td class="num" data-value="1798.5">1,798.5</td><td class="num" data-value="-316.0">&minus;316.0</td><td class="num" data-value="-17.6">&minus;17.6</td></tr>
+                <tr><td data-value="2019-07">2019-07</td><td class="num" data-value="1488.8">1,488.8</td><td class="num" data-value="1482.4">1,482.4</td><td class="num" data-value="6.4">+6.4</td><td class="num" data-value="0.4">+0.4</td></tr>
+                <tr><td data-value="2019-08">2019-08</td><td class="num" data-value="1377.8">1,377.8</td><td class="num" data-value="1488.8">1,488.8</td><td class="num" data-value="-111.0">&minus;111.0</td><td class="num" data-value="-7.5">&minus;7.5</td></tr>
+                <tr><td data-value="2019-09">2019-09</td><td class="num" data-value="1824.8">1,824.8</td><td class="num" data-value="1377.8">1,377.8</td><td class="num" data-value="447.0">+447.0</td><td class="num" data-value="32.4">+32.4</td></tr>
+                <tr><td data-value="2019-10">2019-10</td><td class="num" data-value="538.6">538.6</td><td class="num" data-value="1824.8">1,824.8</td><td class="num" data-value="-1286.2">&minus;1,286.2</td><td class="num" data-value="-70.5">&minus;70.5</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-caption">The October 2019 row is real output, not an error — the source data stops on the 8th, which is exactly why it's excluded from the trend chart on the Results page.</p>
+        </div>
+
+        <div class="tab-panel" data-panel="yoy">
+          <div class="code-panel" style="margin-bottom: 22px;">
+            <div class="code-panel-head">
+              <span class="code-panel-name">LAG() · CTE · like-for-like window</span>
+              <button class="copy-btn" data-copy-target="sql-yoy">Copy</button>
+            </div>
+            <div class="sql-codewrap"><pre class="sql-code" data-sql id="sql-yoy">WITH ytd AS (
+    SELECT s.atc_code, d.drug_name, s.year, SUM(s.units) AS units
+    FROM sales_long s
+    JOIN dim_drug d ON d.atc_code = s.atc_code
+    WHERE s.month &lt;= 10          -- every year cut to Jan-Oct
+    GROUP BY s.atc_code, d.drug_name, s.year
+),
+compared AS (
+    SELECT drug_name, year, units,
+        LAG(units) OVER (PARTITION BY atc_code ORDER BY year) AS prev_units
+    FROM ytd
+)
+SELECT drug_name, year,
+    ROUND(100.0 * (units - prev_units) / prev_units, 1) AS yoy_pct
+FROM compared
+WHERE prev_units IS NOT NULL
+ORDER BY drug_name, year;</pre></div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table sortable">
+              <thead>
+                <tr><th data-dir="asc">Year</th><th class="num">Pyrazolones &amp; Anilides</th><th class="num">Salicylic acid derivatives</th></tr>
+              </thead>
+              <tbody>
+                <tr><td data-value="2015">2015</td><td class="num" data-value="25.1">+25.1</td><td class="num" data-value="-2.7">&minus;2.7</td></tr>
+                <tr><td data-value="2016">2016</td><td class="num" data-value="12.9">+12.9</td><td class="num" data-value="5.5">+5.5</td></tr>
+                <tr><td data-value="2017">2017</td><td class="num" data-value="-30.7">&minus;30.7</td><td class="num" data-value="-23.6">&minus;23.6</td></tr>
+                <tr><td data-value="2018">2018</td><td class="num" data-value="22.2">+22.2</td><td class="num" data-value="-12.3">&minus;12.3</td></tr>
+                <tr><td data-value="2019">2019</td><td class="num" data-value="-11.5">&minus;11.5</td><td class="num" data-value="-6.1">&minus;6.1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-caption">Both categories fell in 2017. In 2018 Pyrazolones and Anilides rebounded +22.2% — Salicylic acid derivatives kept falling. That split is what flags it as structural decline, not a bad year.</p>
+        </div>
+
+        <div class="tab-panel" data-panel="avg">
+          <div class="code-panel" style="margin-bottom: 22px;">
+            <div class="code-panel-head">
+              <span class="code-panel-name">AVG() OVER · frame clause</span>
+              <button class="copy-btn" data-copy-target="sql-avg">Copy</button>
+            </div>
+            <div class="sql-codewrap"><pre class="sql-code" data-sql id="sql-avg">WITH monthly AS (
+    SELECT strftime('%Y-%m', date) AS month, SUM(units) AS units
+    FROM sales_long
+    GROUP BY strftime('%Y-%m', date)
+)
+SELECT month, ROUND(units, 1) AS units,
+    ROUND(AVG(units) OVER (
+        ORDER BY month
+        ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+    ), 1) AS moving_avg_3m
+FROM monthly
+ORDER BY month;</pre></div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table sortable">
+              <thead>
+                <tr><th data-dir="asc">Month</th><th class="num">Units</th><th class="num">3-month avg</th></tr>
+              </thead>
+              <tbody>
+                <tr><td data-value="2019-04">2019-04</td><td class="num" data-value="1716.8">1,716.8</td><td class="num" data-value="1900.0">1,900.0</td></tr>
+                <tr><td data-value="2019-05">2019-05</td><td class="num" data-value="1798.5">1,798.5</td><td class="num" data-value="1851.4">1,851.4</td></tr>
+                <tr><td data-value="2019-06">2019-06</td><td class="num" data-value="1482.4">1,482.4</td><td class="num" data-value="1665.9">1,665.9</td></tr>
+                <tr><td data-value="2019-07">2019-07</td><td class="num" data-value="1488.8">1,488.8</td><td class="num" data-value="1589.9">1,589.9</td></tr>
+                <tr><td data-value="2019-08">2019-08</td><td class="num" data-value="1377.8">1,377.8</td><td class="num" data-value="1449.7">1,449.7</td></tr>
+                <tr><td data-value="2019-09">2019-09</td><td class="num" data-value="1824.8">1,824.8</td><td class="num" data-value="1563.8">1,563.8</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-caption">A trailing 3-row frame, zero self-joins — this is the orange line on the trend chart.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label">Bonus finding</p>
+        <h2 class="section-title">One more thing the data showed</h2>
+        <p class="section-sub">Not part of the original four questions — found while exploring <code>sales_daily</code> by weekday. Saturday runs about 15% above Thursday, a gap consistent enough to be worth noting, though this alone doesn't diagnose why.</p>
+      </div>
+      <div class="barlist">
+        <div class="barlist-row"><span class="barlist-label">Saturday</span><div class="barlist-track"><div class="barlist-fill" style="width:100%"></div></div><span class="barlist-value">19,768</span></div>
+        <div class="barlist-row"><span class="barlist-label">Sunday</span><div class="barlist-track"><div class="barlist-fill" style="width:93.1%"></div></div><span class="barlist-value">18,401</span></div>
+        <div class="barlist-row"><span class="barlist-label">Monday</span><div class="barlist-track"><div class="barlist-fill" style="width:92.3%"></div></div><span class="barlist-value">18,243</span></div>
+        <div class="barlist-row"><span class="barlist-label">Friday</span><div class="barlist-track"><div class="barlist-fill" style="width:91.7%"></div></div><span class="barlist-value">18,134</span></div>
+        <div class="barlist-row"><span class="barlist-label">Tuesday</span><div class="barlist-track"><div class="barlist-fill" style="width:91.4%"></div></div><span class="barlist-value">18,065</span></div>
+        <div class="barlist-row"><span class="barlist-label">Wednesday</span><div class="barlist-track"><div class="barlist-fill" style="width:89.9%"></div></div><span class="barlist-value">17,772</span></div>
+        <div class="barlist-row"><span class="barlist-label">Thursday</span><div class="barlist-track"><div class="barlist-fill" style="width:87.1%"></div></div><span class="barlist-value">17,212</span></div>
+      </div>
+      <p class="table-caption">Total units by weekday, summed across the full 2014–2019 daily series.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <div>
+      <div class="foot-name">Subham Kumar Sahoo</div>
+      <div class="foot-sub">Data pipeline built with pandas, SQLite and Matplotlib/Seaborn</div>
+    </div>
+    <div class="foot-links">
+      <a href="https://github.com/CyberSamurai-04/Pharma_Sales_Analytics" target="_blank" rel="noopener">Repository</a>
+      <a href="https://github.com/CyberSamurai-04" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>
