@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pharma Sales Analytics — Case Study</title>
+<meta name="description" content="An end-to-end analytics case study: cleaning, SQL analysis, and visualization of six years of pharmacy sales data." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232a78d6'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='700' font-size='17' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<header class="site-head">
+  <div class="head-inner">
+    <a class="wordmark" href="index.html">Pharma<span>Sales</span>.Analytics</a>
+    <nav class="head-nav">
+      <a href="index.html" aria-current="page">Home</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="results.html">Results</a>
+      <a class="btn btn-ghost" href="https://github.com/CyberSamurai-04/Pharma_Sales_Analytics" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Data analytics case study</p>
+      <h1 class="hero-title">Six years of pharmacy sales, turned into a decision-ready pipeline</h1>
+      <p class="hero-dek">
+        A raw Kaggle export cleaned in pandas, modeled and queried in SQL, and rendered into
+        charts a category manager could act on the same afternoon. Built end to end as a
+        self-directed analytics project.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://github.com/CyberSamurai-04/Pharma_Sales_Analytics" target="_blank" rel="noopener">View source on GitHub</a>
+        <a class="btn btn-ghost" href="methodology.html">Read the methodology</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="alt" aria-label="Key figures">
+    <div class="wrap">
+      <div class="kpis">
+        <div class="kpi">
+          <span class="kpi-value">5.75 yrs</span>
+          <span class="kpi-label">Coverage — 2 Jan 2014 to 8 Oct 2019</span>
+        </div>
+        <div class="kpi accent">
+          <span class="kpi-value">49.4%</span>
+          <span class="kpi-label">of all units held by one category</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi-value">16,848</span>
+          <span class="kpi-label">fact rows — date × category, long format</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi-value">8 classes</span>
+          <span class="kpi-label">drug categories, mapped to ATC codes</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pipeline">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label">Approach</p>
+        <h2 class="section-title">How the data moves</h2>
+        <p class="section-sub">Five stages, each one a real file in the repo — raw CSVs in, charts out. No step is skipped or simulated.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-title">Raw CSVs</div>
+          <div class="step-detail">4 Kaggle exports at hourly, daily, weekly and monthly grain.</div>
+          <div class="step-tag">data/raw/archive/</div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-title">clean_data.py</div>
+          <div class="step-detail">Parses 3 different date formats, drops a junk column, zero-fills, dedupes.</div>
+          <div class="step-tag">pandas</div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-title">Cleaned CSVs</div>
+          <div class="step-detail">6 tidy files, including a long-format fact table and an ATC lookup.</div>
+          <div class="step-tag">data/cleaned/</div>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <div class="step-title">sql_queries.py</div>
+          <div class="step-detail">Loads 6 tables into SQLite, indexes the fact table, runs 4 analytical queries.</div>
+          <div class="step-tag">pharma_sales.db</div>
+        </div>
+        <div class="step">
+          <div class="step-num">05</div>
+          <div class="step-title">visualize.py</div>
+          <div class="step-detail">Reads the same queries back out, renders three charts to file.</div>
+          <div class="step-tag">matplotlib · seaborn</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="alt">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label">Go deeper</p>
+        <h2 class="section-title">Two ways to look at this project</h2>
+      </div>
+      <div class="explore-grid">
+        <a class="explore-card" href="methodology.html">
+          <span class="explore-num">01</span>
+          <span class="explore-title">Methodology</span>
+          <span class="explore-detail">The raw data's problems, the cleaning logic, the SQLite schema, and all four queries with their real output — sortable, not screenshots.</span>
+          <span class="explore-arrow">Read the walkthrough →</span>
+        </a>
+        <a class="explore-card" href="results.html">
+          <span class="explore-num">02</span>
+          <span class="explore-title">Results</span>
+          <span class="explore-detail">The three charts, what each one means for the business, and a short roadmap of what a Power BI layer and a forecast would add next.</span>
+          <span class="explore-arrow">See the findings →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <div>
+      <div class="foot-name">Subham Kumar Sahoo</div>
+      <div class="foot-sub">Data pipeline built with pandas, SQLite and Matplotlib/Seaborn</div>
+    </div>
+    <div class="foot-links">
+      <a href="https://github.com/CyberSamurai-04/Pharma_Sales_Analytics" target="_blank" rel="noopener">Repository</a>
+      <a href="https://github.com/CyberSamurai-04" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

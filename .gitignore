@@ -12,3 +12,6 @@ env/
 .idea/
 .DS_Store
 Thumbs.db
+
+# local test server output
+site/server.log
