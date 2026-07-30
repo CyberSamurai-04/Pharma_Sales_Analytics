@@ -1,10 +1,40 @@
+<div align="center">
+
 # Pharma Sales Analytics
+
+**Six years of pharmacy sales, turned into a decision-ready analytics pipeline.**
+
+![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-150458?logo=pandas&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=white)
+![Power BI](https://img.shields.io/badge/Power%20BI-F2C811?logo=powerbi&logoColor=black)
+![Matplotlib](https://img.shields.io/badge/Matplotlib-11557C)
+![Seaborn](https://img.shields.io/badge/Seaborn-4C72B0)
+
+![Last commit](https://img.shields.io/github/last-commit/CyberSamurai-04/Pharma_Sales_Analytics?color=2a78d6)
+![Repo size](https://img.shields.io/github/repo-size/CyberSamurai-04/Pharma_Sales_Analytics?color=2a78d6)
+
+</div>
 
 An end-to-end analysis of six years of pharmacy sales data — from raw CSVs through a
 cleaning pipeline, into a SQL database, and out as charts that answer actual business
-questions.
+questions. Also includes a 3-page project website and a Power BI extension on the
+same data model.
 
-Built with **Python (pandas)**, **SQLite**, **Matplotlib/Seaborn**, and **Power BI**.
+---
+
+## Contents
+
+- [Objective](#objective)
+- [The data](#the-data)
+- [Pipeline](#pipeline)
+- [The SQL](#the-sql)
+- [Findings](#findings)
+- [Project website](#project-website)
+- [Power BI dashboard](#power-bi-dashboard)
+- [Methodology notes](#methodology-notes)
+- [Running it](#running-it)
+- [Repository layout](#repository-layout)
 
 ---
 
