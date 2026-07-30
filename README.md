@@ -14,6 +14,8 @@
 ![Last commit](https://img.shields.io/github/last-commit/CyberSamurai-04/Pharma_Sales_Analytics?color=2a78d6)
 ![Repo size](https://img.shields.io/github/repo-size/CyberSamurai-04/Pharma_Sales_Analytics?color=2a78d6)
 
+**[View the live project site →](https://cybersamurai-04.github.io/Pharma_Sales_Analytics/)**
+
 </div>
 
 An end-to-end analysis of six years of pharmacy sales data — from raw CSVs through a
@@ -250,12 +252,17 @@ a root-cause investigation before it is treated as a trend.
 
 ## Project website
 
+**Live: [cybersamurai-04.github.io/Pharma_Sales_Analytics](https://cybersamurai-04.github.io/Pharma_Sales_Analytics/)**
+(GitHub Pages, deployed straight from `docs/` on `main`)
+
 A 3-page site walks through all of this interactively — Home, a Methodology page with the
 full cleaning code and all four SQL queries in sortable, live output tables, and a Results
 page with the charts and a recommendations table. It's plain HTML/CSS/JS, no build step.
 
+To run it locally instead:
+
 ```bash
-cd site
+cd docs
 python -m http.server 8000     # then open http://localhost:8000
 ```
 
@@ -283,7 +290,7 @@ Four DAX measures mirror the SQL layer — `Total Units`, `% of Total`, `YoY %` 
 full walkthrough — relationships, the `MonthName`/`WeekdayName` sort-order fix, all four
 measures, and the three planned report pages — is in
 [`powerbi/POWERBI_GUIDE.md`](powerbi/POWERBI_GUIDE.md), with more detail on the
-[site's Power BI page](site/powerbi.html).
+[site's Power BI page](docs/powerbi.html).
 
 **Status:** the data package and guide are finished; the interactive `.pbix` is in progress.
 
@@ -331,7 +338,7 @@ Run them in that order — each stage reads the previous stage's output.
 │   ├── raw/archive/          untouched Kaggle CSVs
 │   └── cleaned/              pipeline output
 ├── visualizations/           generated PNGs
-├── site/                     the 3-page project website (home, methodology, results, power bi)
+├── docs/                      the 3-page project website (home, methodology, results, power bi)
 └── powerbi/                  star schema extract, date dimension, and the Power BI build guide
 ```
 

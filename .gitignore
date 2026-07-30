@@ -14,4 +14,4 @@ env/
 Thumbs.db
 
 # local test server output
-site/server.log
+docs/server.log
