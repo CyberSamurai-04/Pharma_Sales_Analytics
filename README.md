@@ -4,7 +4,7 @@ An end-to-end analysis of six years of pharmacy sales data — from raw CSVs thr
 cleaning pipeline, into a SQL database, and out as charts that answer actual business
 questions.
 
-Built with **Python (pandas)**, **SQLite**, **Matplotlib** and **Seaborn**.
+Built with **Python (pandas)**, **SQLite**, **Matplotlib/Seaborn**, and **Power BI**.
 
 ---
 
@@ -218,6 +218,47 @@ a root-cause investigation before it is treated as a trend.
 
 ---
 
+## Project website
+
+A 3-page site walks through all of this interactively — Home, a Methodology page with the
+full cleaning code and all four SQL queries in sortable, live output tables, and a Results
+page with the charts and a recommendations table. It's plain HTML/CSS/JS, no build step.
+
+```bash
+cd site
+python -m http.server 8000     # then open http://localhost:8000
+```
+
+## Power BI dashboard
+
+The same star schema behind the SQL analysis extends directly into Power BI —
+`sales_long` and `dim_drug` are already a fact table and a dimension, so the data model
+didn't need a rewrite, just a proper date dimension added alongside them.
+
+`powerbi/build_powerbi_extract.py` generates the import-ready files in `powerbi/`:
+
+| File | Rows | Role |
+|---|---|---|
+| `fact_sales.csv` | 16,848 | Date, ATCCode, Units |
+| `dim_drug.csv` | 8 | ATCCode, DrugName, DrugGroup |
+| `dim_date.csv` | 2,191 | One row per calendar day, 2014–2019 in full — not just the days with sales |
+
+`dim_date` deliberately spans complete calendar years rather than only the ~2,106 days
+with actual transactions. Power BI's time-intelligence functions (`SAMEPERIODLASTYEAR`,
+`DATESINPERIOD`) need a contiguous date table, or year-over-year calculations silently
+go wrong at year boundaries.
+
+Four DAX measures mirror the SQL layer — `Total Units`, `% of Total`, `YoY %` (via
+`SAMEPERIODLASTYEAR`), and a `3M Moving Avg` (via `DATESINPERIOD` + `SUMMARIZE`). The
+full walkthrough — relationships, the `MonthName`/`WeekdayName` sort-order fix, all four
+measures, and the three planned report pages — is in
+[`powerbi/POWERBI_GUIDE.md`](powerbi/POWERBI_GUIDE.md), with more detail on the
+[site's Power BI page](site/powerbi.html).
+
+**Status:** the data package and guide are finished; the interactive `.pbix` is in progress.
+
+---
+
 ## Methodology notes
 
 - **The partial final month.** The source data ends on 8 October 2019. October is therefore
@@ -259,7 +300,9 @@ Run them in that order — each stage reads the previous stage's output.
 ├── data/
 │   ├── raw/archive/          untouched Kaggle CSVs
 │   └── cleaned/              pipeline output
-└── visualizations/           generated PNGs
+├── visualizations/           generated PNGs
+├── site/                     the 3-page project website (home, methodology, results, power bi)
+└── powerbi/                  star schema extract, date dimension, and the Power BI build guide
 ```
 
 `pharma_sales.db` is gitignored — it is rebuilt from the cleaned CSVs by `sql_queries.py`.
