@@ -580,3 +580,47 @@ details.code-expander .code-panel { border-radius: 0; }
 @media (max-width: 700px) {
   .roadmap-item { grid-template-columns: 1fr; gap: 6px; }
 }
+
+/* ------------------------------------------------------------------ */
+/* Status card + preview placeholder                                   */
+/* ------------------------------------------------------------------ */
+.status-card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.status-pill {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent-dim);
+  background: var(--accent-tint);
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+.status-pill::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.status-card p { margin: 0; font-size: 15px; color: var(--ink-soft); line-height: 1.65; }
+.status-card p strong { color: var(--ink); }
+
+.preview-placeholder {
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--ink-muted);
+  font-size: 14px;
+}
+.preview-placeholder strong { display: block; color: var(--ink-soft); font-size: 15px; margin-bottom: 6px; }
